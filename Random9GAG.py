@@ -2,6 +2,7 @@
 # !/usr/bin/python3
 
 # python3 -m pip install tweepy selenium python-dateutil --no-cache-dir
+import datetime
 import json
 import os
 import urllib.request
@@ -102,7 +103,6 @@ def main():
 
         # Tweet!
         checkEnd = tweet(postSrc, postTitle + "\n\n" + postURL + "\n\n" + postTags)
-        print("----------------------------------------------------")
 
     # Get tweets -> Like them
     favTweets(postTags, 10)
@@ -112,6 +112,7 @@ def main():
 
 if __name__ == "__main__":
     print("----------------------------------------------------")
+    print(str(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")))
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     headless = True
     options = Options()
