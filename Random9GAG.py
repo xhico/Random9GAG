@@ -8,6 +8,7 @@ import os
 import urllib.request
 import tweepy
 import yagmail
+import psutil
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
@@ -78,6 +79,7 @@ def tweet(postSrc, message):
 
 
 def favTweets(tags, numbTweets):
+    print("favTweets")
     tags = tags.replace(" ", " OR ")
     tweets = tweepy.Cursor(api.search_tweets, q=tags).items(numbTweets)
     tweets = [tw for tw in tweets]
@@ -85,9 +87,7 @@ def favTweets(tags, numbTweets):
     for tw in tweets:
         try:
             tw.favorite()
-            print(str(tw.id) + " - Like")
         except Exception as e:
-            print(str(tw.id) + " - " + str(e))
             pass
 
     return True
@@ -114,20 +114,26 @@ if __name__ == "__main__":
     print("----------------------------------------------------")
     print(str(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")))
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    headless = True
-    options = Options()
-    options.headless = headless
-    service = Service("/home/pi/geckodriver")
-    # service = Service(r"C:\Users\xhico\OneDrive\Useful\geckodriver.exe")
-    browser = webdriver.Firefox(service=service, options=options)
+    
+    # Check if script is already running
+    procs = [proc for proc in psutil.process_iter(attrs=["cmdline"]) if os.path.basename(__file__) in '\t'.join(proc.info["cmdline"])]
+    if len(procs) > 2:
+        print("isRunning")
+    else:
+        headless = True
+        options = Options()
+        options.headless = headless
+        service = Service("/home/pi/geckodriver")
+        # service = Service(r"C:\Users\xhico\OneDrive\Useful\geckodriver.exe")
+        browser = webdriver.Firefox(service=service, options=options)
 
-    try:
-        main()
-    except Exception as ex:
-        print(ex)
-        yagmail.SMTP(EMAIL_USER, EMAIL_APPPW).send(EMAIL_RECEIVER, "Error - " + os.path.basename(__file__), str(ex))
-    finally:
-        if headless:
-            browser.close()
-            print("Close")
-        print("End")
+        try:
+            main()
+        except Exception as ex:
+            print(ex)
+            yagmail.SMTP(EMAIL_USER, EMAIL_APPPW).send(EMAIL_RECEIVER, "Error - " + os.path.basename(__file__), str(ex))
+        finally:
+            if headless:
+                browser.close()
+                print("Close")
+            print("End")
