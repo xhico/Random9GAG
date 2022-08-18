@@ -9,6 +9,7 @@ import urllib.request
 import tweepy
 import yagmail
 import psutil
+import traceback
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
@@ -130,8 +131,8 @@ if __name__ == "__main__":
         try:
             main()
         except Exception as ex:
-            print(ex)
-            yagmail.SMTP(EMAIL_USER, EMAIL_APPPW).send(EMAIL_RECEIVER, "Error - " + os.path.basename(__file__), str(ex))
+            print(traceback.format_exc())
+            yagmail.SMTP(EMAIL_USER, EMAIL_APPPW).send(EMAIL_RECEIVER, "Error - " + os.path.basename(__file__), str(traceback.format_exc()))
         finally:
             if headless:
                 browser.close()
