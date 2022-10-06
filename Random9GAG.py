@@ -66,7 +66,6 @@ def getRandomPost():
 
 
 def tweet(postSrc, message):
-    print("Try: " + postSrc)
     try:
         tmpFile = "tmpFile." + postSrc.split(".")[-1]
         urllib.request.urlretrieve(postSrc, tmpFile)
@@ -99,8 +98,8 @@ def main():
     while not checkEnd:
         postURL, postTitle, postTags, postSrc = getRandomPost()
         print(postURL)
-        print(postTitle)
-        print(postTags)
+        # print(postTitle)
+        # print(postTags)
 
         # Tweet!
         checkEnd = tweet(postSrc, postTitle + "\n\n" + postURL + "\n\n" + postTags)
