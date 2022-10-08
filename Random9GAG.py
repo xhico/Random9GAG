@@ -4,6 +4,7 @@
 # python3 -m pip install tweepy selenium python-dateutil psutil --no-cache-dir
 import datetime
 import json
+import logging
 import os
 import urllib.request
 import tweepy
@@ -22,25 +23,12 @@ def get911(key):
     return data[key]
 
 
-CONSUMER_KEY = get911('TWITTER_9GAG_CONSUMER_KEY')
-CONSUMER_SECRET = get911('TWITTER_9GAG_CONSUMER_SECRET')
-ACCESS_TOKEN = get911('TWITTER_9GAG_ACCESS_TOKEN')
-ACCESS_TOKEN_SECRET = get911('TWITTER_9GAG_ACCESS_TOKEN_SECRET')
-EMAIL_USER = get911('EMAIL_USER')
-EMAIL_APPPW = get911('EMAIL_APPPW')
-EMAIL_RECEIVER = get911('EMAIL_RECEIVER')
-
-auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
-api = tweepy.API(auth)
-
-
 def getRandomPost():
     postURL, postTitle, postTags, postSrc = None, None, None, None
 
     # Get Random Post until src is found
     while postSrc is None or postTitle is None or postTags is None or postSrc is None:
-        print("getRandomPost")
+        logger.info("getRandomPost")
         browser.get("https://bit.ly/ShuffleNav")
 
         # Get Post URL and Post Title
@@ -70,16 +58,15 @@ def tweet(postSrc, message):
         tmpFile = "tmpFile." + postSrc.split(".")[-1]
         urllib.request.urlretrieve(postSrc, tmpFile)
         api.update_status(status=message, media_ids=[api.media_upload(tmpFile).media_id_string])
-        print("Tweet")
+        logger.info("Tweet")
         return True
     except Exception as ex:
-        print(ex)
-        print("Failed")
+        logger.error(ex)
     return False
 
 
 def favTweets(tags, numbTweets):
-    print("favTweets")
+    logger.info("favTweets")
     tags = tags.replace(" ", " OR ")
     tweets = tweepy.Cursor(api.search_tweets, q=tags).items(numbTweets)
     tweets = [tw for tw in tweets]
@@ -97,9 +84,7 @@ def main():
     checkEnd, postTags = False, ""
     while not checkEnd:
         postURL, postTitle, postTags, postSrc = getRandomPost()
-        print(postURL)
-        # print(postTitle)
-        # print(postTags)
+        logger.info(postURL)
 
         # Tweet!
         checkEnd = tweet(postSrc, postTitle + "\n\n" + postURL + "\n\n" + postTags)
@@ -111,14 +96,29 @@ def main():
 
 
 if __name__ == "__main__":
-    print("----------------------------------------------------")
-    print(str(datetime.datetime.now().strftime("%Y/%m/%d %H:%M:%S")))
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    
+    # Set Logging
+    LOG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), os.path.abspath(__file__).replace(".py", ".log"))
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s", handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()])
+    logger = logging.getLogger()
+
+    logger.info("----------------------------------------------------")
+
+    CONSUMER_KEY = get911('TWITTER_9GAG_CONSUMER_KEY')
+    CONSUMER_SECRET = get911('TWITTER_9GAG_CONSUMER_SECRET')
+    ACCESS_TOKEN = get911('TWITTER_9GAG_ACCESS_TOKEN')
+    ACCESS_TOKEN_SECRET = get911('TWITTER_9GAG_ACCESS_TOKEN_SECRET')
+    EMAIL_USER = get911('EMAIL_USER')
+    EMAIL_APPPW = get911('EMAIL_APPPW')
+    EMAIL_RECEIVER = get911('EMAIL_RECEIVER')
+
+    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+    auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
+    api = tweepy.API(auth)
+
     # Check if script is already running
     procs = [proc for proc in psutil.process_iter(attrs=["cmdline"]) if os.path.basename(__file__) in '\t'.join(proc.info["cmdline"])]
     if len(procs) > 2:
-        print("isRunning")
+        logger.info("isRunning")
     else:
         headless = True
         options = Options()
@@ -130,10 +130,10 @@ if __name__ == "__main__":
         try:
             main()
         except Exception as ex:
-            print(traceback.format_exc())
+            logger.error(traceback.format_exc())
             yagmail.SMTP(EMAIL_USER, EMAIL_APPPW).send(EMAIL_RECEIVER, "Error - " + os.path.basename(__file__), str(traceback.format_exc()))
         finally:
             if headless:
                 browser.close()
-                print("Close")
-            print("End")
+                logger.info("Close")
+            logger.info("End")

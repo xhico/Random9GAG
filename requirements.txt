@@ -1,4 +1,0 @@
-tweepy
-selenium
-python-dateutil
-psutil
