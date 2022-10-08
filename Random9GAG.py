@@ -52,7 +52,7 @@ def getRandomPost():
 
 def tweet(postSrc, message):
     try:
-        tmpFile = "tmpFile." + postSrc.split(".")[-1]
+        tmpFile = os.path.join(os.path.join(os.path.dirname(os.path.abspath(__file__)), "tmpFile." + postSrc.split(".")[-1]))
         urllib.request.urlretrieve(postSrc, tmpFile)
         api.update_status(status=message, media_ids=[api.media_upload(tmpFile).media_id_string])
         logger.info("Tweet")
