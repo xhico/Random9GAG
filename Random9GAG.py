@@ -2,6 +2,7 @@
 # !/usr/bin/python3
 
 # python3 -m pip install tweepy selenium python-dateutil psutil --no-cache-dir
+
 import datetime
 import json
 import logging
@@ -11,16 +12,12 @@ import tweepy
 import yagmail
 import psutil
 import traceback
+import base64
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
-
-
-def get911(key):
-    with open('/home/pi/.911') as f:
-        data = json.load(f)
-    return data[key]
+from Misc import get911
 
 
 def getRandomPost():
