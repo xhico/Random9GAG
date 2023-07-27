@@ -1,0 +1,12 @@
+[Unit]
+Description=Random9GAG Service
+After=network.target
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/Random9GAG/
+ExecStart=/usr/bin/python3 /home/pi/Random9GAG/Random9GAG.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
