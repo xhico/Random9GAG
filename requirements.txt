@@ -1,0 +1,5 @@
+tweepy
+selenium
+python-dateutil
+psutil
+yagmail
