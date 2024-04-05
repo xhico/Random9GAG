@@ -3,15 +3,17 @@
 
 import logging
 import os
+import traceback
 import urllib.request
+
+import psutil
 import tweepy
 import yagmail
-import psutil
-import traceback
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
+
 from Misc import get911
 
 
